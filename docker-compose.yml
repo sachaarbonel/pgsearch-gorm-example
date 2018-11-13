@@ -1,0 +1,26 @@
+version: '3'
+services:
+
+  # search:
+  #   build:
+  #     context: ./search
+  #   volumes:
+  #     - ./search:/go/src/github.com/Sach97/pgsearch-goqu-example
+  #   links:
+  #     - postgres
+  #   networks:
+  #     - search-network
+  postgres:
+    build : ./postgres
+    volumes:
+      - ./postgres/pgdata:/pgdata
+    environment:
+      POSTGRES_DB: dev
+      POSTGRES_USER: postgres-dev
+      POSTGRES_PASSWORD: s3cr3tp4ssw0rd
+      PGDATA: /pgdata
+    ports:
+      - 5432:5432
+
+# networks:
+#   search-network:
