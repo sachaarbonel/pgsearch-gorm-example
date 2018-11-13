@@ -1,11 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
 	_ "gopkg.in/doug-martin/goqu.v5/adapters/postgres"
 )
@@ -23,38 +23,51 @@ func main() {
 
 	connectionString := fmt.Sprintf(t, host, port, user, password, dbname, sslmode)
 
-	pgDb, err := sql.Open("postgres", connectionString)
+	db, err := gorm.Open("postgres", connectionString)
+	defer db.Close()
 	if err != nil {
 		fmt.Println("Error in postgres connection: ", err)
 	}
 
-	err = pgDb.Ping()
+	err = db.DB().Ping()
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Successfully connected!")
-	defer pgDb.Close()
 
 	type Article struct {
-		Title       string    `db:"title"`
-		PublishDate time.Time `db:"publish_date"`
-		Summary     string    `db:"summary"`
-		TopImage    string    `db:"top_image"`
+		// ID            int
+		Title         string
+		TitleTokens   string    `gorm:"type:tsvector;column:title_tokens"`
+		PublishDate   time.Time `gorm:"column:publish_date"`
+		Summary       string
+		SummaryTokens string `gorm:"type:tsvector;column:summary_tokens"`
+		TopImage      string `gorm:"column:top_image"`
 	}
 
-	//db := goqu.New("postgres", pgDb)
+	db.DropTableIfExists(&Article{})
+	db.AutoMigrate(&Article{})
+	now := time.Now()
+	//db.Create(&Article{Title: "This is a title", PublishDate: now, Summary: "This is a summary", TopImage: "This is a top image url"})
 
-	// 	SELECT *
-	// FROM products
-	// WHERE to_tsvector('english', product_name) @@ to_tsquery('english', 'hello');
-	// product_name := "product_name"
-	// sql, _, _ := db.From("products").Where(
-	// 	goqu.L("to_tsvector(?, ?) @@ to_query(?, ?)", "\"english\"", product_name, "\"english\"", "hello"),
-	// ).ToSql()
-	// fmt.Println(sql)
-	// productName := "product_name"
-	// sql, _, _ := db.From("products").Prepared(true).Where(
-	// 	goqu.L("to_tsvector(?, ?) @@ to_query(?, ?)", "\"english\"", productName, "\"english\"", "hello"),
-	// ).ScanStructs(&items)
+	//article1 := &Article{Title: "This is a title", PublishDate: now, Summary: "This is a summary", TopImage: "This is a top image url"}
 
+	//var articles []Article
+	articles := []Article{
+		Article{Title: "Title of Pack my box with five dozen liquor jugs.", PublishDate: now, Summary: "Summary of Pack my box with five dozen liquor jugs.", TopImage: "url"},
+		Article{Title: "Title of Jackdaws love my big sphinx of quartz.", PublishDate: now, Summary: "Summary of Jackdaws love my big sphinx of quartz.", TopImage: "url"},
+		Article{Title: "Title of The five boxing wizards jump quickly.", PublishDate: now, Summary: "Summary of The five boxing wizards jump quickly.", TopImage: "url"},
+		Article{Title: "Title of How vexingly quick daft zebras jump!", PublishDate: now, Summary: "Summary of How vexingly quick daft zebras jump!", TopImage: "url"},
+	}
+
+	for _, a := range articles {
+		db.Exec("INSERT INTO articles (title, title_tokens, publish_date, summary, summary_tokens, top_image) VALUES (?, to_tsvector(?), ?, ?, to_tsvector(?), ?)", a.Title, a.Title, now, a.Summary, a.Summary, a.TopImage)
+	}
+
+	var article Article
+	// db.Raw("SELECT * FROM articles WHERE to_tsvector(?, ?) @@ to_query(?, ?)", 3).Scan(&article)
+
+	//db.Exec("SELECT * FROM articles").Scan(&article)
+	db.First(&article)
+	fmt.Println(article)
 }
