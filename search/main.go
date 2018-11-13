@@ -36,9 +36,12 @@ func main() {
 
 	db := goqu.New("postgres", pgDb)
 
-	sql, _, _ := db.From("test").Where(
-		goqu.I("col").Eq(10),
-		goqu.L(`"json"::TEXT = "other_json"::TEXT`),
+	// 	SELECT *
+	// FROM products
+	// WHERE to_tsvector('english', product_name) @@ to_tsquery('english', 'hello');
+	product_name := "product_name"
+	sql, _, _ := db.From("products").Where(
+		goqu.L("to_tsvector(?, ?) @@ to_query(?, ?)", "\"english\"", product_name, "\"english\"", "hello"),
 	).ToSql()
 	fmt.Println(sql)
 
