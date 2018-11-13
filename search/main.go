@@ -6,20 +6,11 @@ import (
 	"log"
 
 	_ "github.com/lib/pq"
+	goqu "gopkg.in/doug-martin/goqu.v5"
 	_ "gopkg.in/doug-martin/goqu.v5/adapters/postgres"
 )
 
 func main() {
-	// pgDb, err := sql.Open("postgres", "user=postgres dbname=goqupostgres sslmode=disable ")
-	// if err != nil {
-	// 	panic(err.Error())
-	// }
-	// db := goqu.New("postgres", pgDb)
-	// //interpolated sql
-	// sql, _ := db.From("user").Where(goqu.Ex{
-	// 	"id": 10,
-	// }).ToSql()
-	// fmt.Println(sql)
 
 	host := "192.168.0.16"
 	port := 5432
@@ -32,15 +23,23 @@ func main() {
 
 	connectionString := fmt.Sprintf(t, host, port, user, password, dbname, sslmode)
 
-	db, err := sql.Open("postgres", connectionString)
+	pgDb, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		fmt.Println("Error in postgres connection: ", err)
 	}
 
-	err = db.Ping()
+	err = pgDb.Ping()
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Successfully connected!")
+
+	db := goqu.New("postgres", pgDb)
+
+	sql, _, _ := db.From("test").Where(
+		goqu.I("col").Eq(10),
+		goqu.L(`"json"::TEXT = "other_json"::TEXT`),
+	).ToSql()
+	fmt.Println(sql)
 
 }
