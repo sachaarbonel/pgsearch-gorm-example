@@ -1,15 +1,15 @@
 version: '3'
 services:
 
-  # search:
-  #   build:
-  #     context: ./search
-  #   volumes:
-  #     - ./search:/go/src/github.com/Sach97/pgsearch-goqu-example
-  #   links:
-  #     - postgres
-  #   networks:
-  #     - search-network
+  search:
+    build:
+      context: ./search
+    volumes:
+      - ./search:/go/src/github.com/Sach97/pgsearch-goqu-example
+    links:
+      - postgres
+    networks:
+      - search-network
   postgres:
     build : ./postgres
     volumes:
@@ -22,5 +22,5 @@ services:
     ports:
       - 5432:5432
 
-# networks:
-#   search-network:
+networks:
+  search-network:

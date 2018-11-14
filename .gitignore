@@ -12,3 +12,4 @@
 *.out
 
 postgres/pgdata/**
+search/vendor/
