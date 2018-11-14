@@ -36,7 +36,6 @@ func main() {
 	fmt.Println("Successfully connected!")
 
 	type Article struct {
-		// ID            int
 		Title         string
 		TitleTokens   string    `gorm:"type:tsvector;column:title_tokens"`
 		PublishDate   time.Time `gorm:"column:publish_date"`
@@ -48,11 +47,7 @@ func main() {
 	db.DropTableIfExists(&Article{})
 	db.AutoMigrate(&Article{})
 	now := time.Now()
-	//db.Create(&Article{Title: "This is a title", PublishDate: now, Summary: "This is a summary", TopImage: "This is a top image url"})
 
-	//article1 := &Article{Title: "This is a title", PublishDate: now, Summary: "This is a summary", TopImage: "This is a top image url"}
-
-	//var articles []Article
 	articles := []Article{
 		Article{Title: "Title of Pack my box with five dozen liquor jugs.", PublishDate: now, Summary: "Summary of Pack my box with five dozen liquor jugs.", TopImage: "url"},
 		Article{Title: "Title of Jackdaws love my big sphinx of quartz.", PublishDate: now, Summary: "Summary of Jackdaws love my big sphinx of quartz.", TopImage: "url"},
@@ -64,10 +59,17 @@ func main() {
 		db.Exec("INSERT INTO articles (title, title_tokens, publish_date, summary, summary_tokens, top_image) VALUES (?, to_tsvector(?), ?, ?, to_tsvector(?), ?)", a.Title, a.Title, now, a.Summary, a.Summary, a.TopImage)
 	}
 
-	var article Article
-	// db.Raw("SELECT * FROM articles WHERE to_tsvector(?, ?) @@ to_query(?, ?)", 3).Scan(&article)
+	type Result struct {
+		Title       string
+		PublishDate time.Time
+		TopImage    string
+	}
 
-	//db.Exec("SELECT * FROM articles").Scan(&article)
-	db.First(&article)
-	fmt.Println(article)
+	var result Result
+	rows, err := db.Raw("SELECT title, publish_date, top_image FROM articles WHERE title_tokens @@ to_tsquery('jump & quick')").Rows()
+	defer rows.Close()
+	for rows.Next() {
+		db.ScanRows(rows, &result)
+		fmt.Println(result)
+	}
 }
