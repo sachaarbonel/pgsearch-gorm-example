@@ -8,8 +8,6 @@ A full text search example in Postgresql + go + gorm
 ## How to run ?
   ```
   ~ docker-compose up
-  ~ cd search
-  search ~ go run main.go
   ```
 
 ## TODOs
