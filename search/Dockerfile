@@ -10,8 +10,8 @@ RUN apk add --update --no-cache git libc-dev
 # install dependency tool
 RUN go get github.com/golang/dep && go install github.com/golang/dep/cmd/dep
 
-WORKDIR /go/src/github.com/Sach97/pgsearch-goqu-example
-COPY . /go/src/github.com/Sach97/pgsearch-goqu-example
+WORKDIR /go/src/github.com/Sach97/pgsearch-gorm-example
+COPY . /go/src/github.com/Sach97/pgsearch-gorm-example
 
 # Get dependencies
 RUN dep ensure -v
