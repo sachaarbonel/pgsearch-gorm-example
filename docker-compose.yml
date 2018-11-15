@@ -5,7 +5,7 @@ services:
     build:
       context: ./search
     volumes:
-      - ./search:/go/src/github.com/Sach97/pgsearch-goqu-example
+      - ./search:/go/src/github.com/Sach97/pgsearch-gorm-example
     links:
       - postgres
     networks:
