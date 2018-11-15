@@ -12,3 +12,5 @@ A full text search example in Postgresql + go + gorm
   search ~ go run main.go
   ```
 
+## TODOs
+- [ ] Change hardcoded values for postgres connection to environment variables
