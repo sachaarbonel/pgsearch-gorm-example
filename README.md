@@ -3,7 +3,6 @@ A full text search example in Postgresql + go + gorm
 
 ## Prerequistes
 - Docker
-- Go
   
 ## How to run ?
   ```
